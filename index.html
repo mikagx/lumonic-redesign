@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumonic — Portfolio Monitoring for Private Credit & Equity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF9F7;
+    --bg-elevated: #FFFFFF;
+    --bg-subtle: #F2F1EE;
+    --bg-dark: #141211;
+    --text-primary: #1C1917;
+    --text-secondary: #57534E;
+    --text-tertiary: #A8A29E;
+    --green: #16A34A;
+    --border: #E7E5E4;
+    --border-light: #EEECE9;
+    --serif: 'Instrument Serif', 'Times New Roman', serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --radius: 14px;
+    --transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 256px;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 80ms; }
+  .reveal-delay-2 { transition-delay: 160ms; }
+  .reveal-delay-3 { transition-delay: 240ms; }
+  .reveal-delay-4 { transition-delay: 320ms; }
+
+  .container { max-width: 1140px; margin: 0 auto; padding: 0 40px; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(250, 249, 247, 0.88);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 1px 0 var(--border-light);
+  }
+  .nav-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    height: 28px;
+    display: block;
+  }
+  .nav-logo img {
+    height: 100%;
+    width: auto;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 450;
+    transition: color var(--transition);
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav-login {
+    font-size: 14px;
+    font-weight: 450;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .nav-login:hover { color: var(--text-primary); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition);
+    border: none;
+  }
+  .btn-dark {
+    background: var(--text-primary);
+    color: var(--bg);
+  }
+  .btn-dark:hover {
+    background: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover {
+    border-color: var(--text-primary);
+    transform: translateY(-1px);
+  }
+  .btn-light {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-light:hover {
+    background: rgba(255,255,255,0.18);
+    transform: translateY(-1px);
+  }
+  .btn svg {
+    width: 14px;
+    height: 14px;
+    transition: transform var(--transition);
+  }
+  .btn:hover svg { transform: translateX(2px); }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 150px 0 80px;
+    text-align: center;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(28,25,23,0.025) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(44px, 5.5vw, 74px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -1.8px;
+    max-width: 780px;
+    margin: 0 auto 28px;
+    animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  .hero-sub {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin: 0 auto 40px;
+    letter-spacing: -0.1px;
+    animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+  }
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+  }
+  .hero-actions .btn { padding: 12px 28px; font-size: 15px; }
+
+  /* ─── LOGO MARQUEE ─── */
+  .logo-marquee {
+    padding: 48px 0 56px;
+    overflow: hidden;
+    border-top: 1px solid var(--border-light);
+  }
+  .logo-marquee-label {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-tertiary);
+    margin-bottom: 28px;
+  }
+  .marquee-wrapper {
+    position: relative;
+  }
+  .marquee-wrapper::before,
+  .marquee-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 120px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .marquee-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg), transparent);
+  }
+  .marquee-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg), transparent);
+  }
+  .marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    animation: scroll 35s linear infinite;
+    width: max-content;
+  }
+  .marquee-track img {
+    height: 24px;
+    width: auto;
+    opacity: 0.4;
+    filter: grayscale(100%);
+    transition: opacity 0.3s;
+    flex-shrink: 0;
+  }
+  .marquee-track img:hover {
+    opacity: 0.7;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ─── PAIN POINTS ─── */
+  .pain-section {
+    padding: 120px 0;
+  }
+  .pain-header {
+    margin-bottom: 64px;
+  }
+  .pain-header .section-label {
+    margin-bottom: 16px;
+  }
+  .pain-header h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.8px;
+    max-width: 500px;
+  }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+  .pain-item {
+    padding: 32px 24px 32px 0;
+    border-bottom: 1px solid var(--border-light);
+    position: relative;
+  }
+  .pain-item:not(:last-child) {
+    border-right: 1px solid var(--border-light);
+    padding-right: 24px;
+  }
+  .pain-item:not(:first-child) {
+    padding-left: 24px;
+  }
+  .pain-number {
+    font-family: var(--serif);
+    font-size: 32px;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .pain-item h3 {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+  }
+  .pain-item p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  /* ─── SECTION LABELS ─── */
+  .section-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-tertiary);
+    display: block;
+  }
+
+  /* ─── HOW IT WORKS (3 steps, flowing) ─── */
+  .how-section {
+    padding: 120px 0;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .how-header {
+    text-align: center;
+    margin-bottom: 100px;
+  }
+  .how-header h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.8px;
+    margin-top: 16px;
+  }
+  .how-header p {
+    font-size: 17px;
+    color: var(--text-secondary);
+    margin-top: 16px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .how-step {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-bottom: 120px;
+  }
+  .how-step:last-child { margin-bottom: 0; }
+  .how-step.reverse { direction: rtl; }
+  .how-step.reverse > * { direction: ltr; }
+  .how-step-number {
+    font-family: var(--serif);
+    font-size: 72px;
+    color: var(--border-light);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .how-step h3 {
+    font-family: var(--serif);
+    font-size: clamp(26px, 2.5vw, 34px);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.4px;
+    margin-bottom: 16px;
+  }
+  .how-step-desc {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  .how-step-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .how-step-bullets li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .how-step-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .how-visual {
+    background: var(--bg-subtle);
+    border-radius: var(--radius);
+    aspect-ratio: 4/3;
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .how-visual-placeholder {
+    color: var(--text-tertiary);
+    font-size: 13px;
+    font-weight: 450;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .how-visual-placeholder svg { width: 24px; height: 24px; opacity: 0.35; }
+
+  /* ─── FEATURES GRID ─── */
+  .features-section {
+    padding: 120px 0;
+  }
+  .features-header {
+    margin-bottom: 72px;
+  }
+  .features-header h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.8px;
+    margin-top: 16px;
+    max-width: 480px;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+  .feature-item {
+    padding: 40px 32px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+  .feature-item:hover {
+    background: var(--bg-elevated);
+  }
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .feature-icon svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-secondary);
+  }
+  .feature-item h3 {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+  }
+  .feature-item p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* ─── AI SECTION (full-bleed dark) ─── */
+  .ai-section {
+    background: var(--bg-dark);
+    padding: 140px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-section::before {
+    content: '';
+    position: absolute;
+    top: -300px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .ai-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .ai-content .section-label { color: rgba(255,255,255,0.3); }
+  .ai-content h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.8px;
+    color: #fff;
+    margin-top: 16px;
+    margin-bottom: 20px;
+  }
+  .ai-content p {
+    font-size: 16px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 32px;
+  }
+  .ai-content .how-step-bullets li {
+    color: rgba(255,255,255,0.45);
+  }
+  .ai-content .how-step-bullets li::before {
+    background: rgba(255,255,255,0.15);
+  }
+  .ai-chat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+  .ai-chat-header {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .chat-bubble {
+    max-width: 88%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  .chat-bubble.user {
+    align-self: flex-end;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85);
+    border-bottom-right-radius: 4px;
+  }
+  .chat-bubble.assistant {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-bubble.assistant strong {
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ─── SOCIAL PROOF / TESTIMONIAL ─── */
+  .testimonial-section {
+    padding: 120px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .testimonial-quote {
+    font-family: var(--serif);
+    font-size: clamp(24px, 2.8vw, 36px);
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: -0.5px;
+    max-width: 720px;
+    margin: 0 auto 32px;
+    font-style: italic;
+    color: var(--text-primary);
+  }
+  .testimonial-attribution {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+  }
+  .testimonial-attribution strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ─── USE CASES ─── */
+  .use-cases {
+    padding: 120px 0;
+  }
+  .use-cases-header {
+    margin-bottom: 64px;
+  }
+  .use-cases-header h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.8px;
+    margin-top: 16px;
+  }
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+  .use-case-item {
+    padding: 36px 28px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+  .use-case-item:hover { background: var(--bg-elevated); }
+  .use-case-item h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+  .use-case-item p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    padding: 140px 0;
+    text-align: center;
+  }
+  .cta-section h2 {
+    font-family: var(--serif);
+    font-size: clamp(36px, 4.5vw, 60px);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -1.2px;
+    margin-bottom: 20px;
+  }
+  .cta-section h2 em {
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  .cta-section p {
+    font-size: 17px;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .cta-section .btn { padding: 14px 32px; font-size: 15px; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 64px 0 48px;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-brand-logo {
+    height: 24px;
+    width: auto;
+    margin-bottom: 16px;
+  }
+  .footer-brand p {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+    max-width: 260px;
+  }
+  .footer-col h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+  }
+  .footer-col a {
+    display: block;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color var(--transition);
+  }
+  .footer-col a:hover { color: var(--text-primary); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-light);
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+  .footer-bottom a {
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .footer-bottom a:hover { color: var(--text-secondary); }
+  .footer-legal { display: flex; gap: 24px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1000px) {
+    .pain-grid { grid-template-columns: repeat(3, 1fr); }
+    .pain-item:nth-child(4), .pain-item:nth-child(5) { border-top: 0; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .use-cases-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .how-step, .ai-inner { grid-template-columns: 1fr; gap: 40px; }
+    .how-step.reverse { direction: ltr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    .container { padding: 0 24px; }
+    nav { padding: 0 24px; }
+  }
+  @media (max-width: 640px) {
+    .pain-grid { grid-template-columns: 1fr; }
+    .pain-item { border-right: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+    .features-grid { grid-template-columns: 1fr; }
+    .use-cases-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .marquee-track { animation: none; flex-wrap: wrap; justify-content: center; }
+    .hero h1, .hero-sub, .hero-actions { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <img src="logos/pb-lumonic.svg" alt="PitchBook | Lumonic" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="#platform">Platform</a></li>
+      <li><a href="#private-credit">Private Credit</a></li>
+      <li><a href="#private-equity">Private Equity</a></li>
+      <li><a href="#content">Content</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="https://app.lumonic.com/" class="nav-login">Log in</a>
+      <a href="https://www.lumonic.com/get-started" class="btn btn-dark">
+        See a demo
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <h1>Portfolio monitoring that works <em>the way you do</em></h1>
+    <p class="hero-sub">Stop wrestling with Excel. Lumonic's AI extracts data from any document format, automates collection, and delivers insights — without forcing your portfolio companies into rigid templates.</p>
+    <div class="hero-actions">
+      <a href="https://www.lumonic.com/get-started" class="btn btn-dark">
+        See it in action
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg>
+      </a>
+      <a href="#platform" class="btn btn-outline">How it works</a>
+    </div>
+  </div>
+</section>
+
+<!-- LOGO MARQUEE -->
+<section class="logo-marquee">
+  <p class="logo-marquee-label">Trusted by 70+ investment firms</p>
+  <div class="marquee-wrapper">
+    <div class="marquee-track">
+      <img src="logos/avante.png" alt="Avante Capital Partners" />
+      <img src="logos/avenue.png" alt="Avenue Capital Group" />
+      <img src="logos/trinity.svg" alt="Trinity Capital" />
+      <img src="logos/hercules.png" alt="Hercules Capital" />
+      <img src="logos/ares.svg" alt="Ares Management" />
+      <img src="logos/blackrock.png" alt="BlackRock" />
+      <img src="logos/carlyle.svg" alt="Carlyle" />
+      <img src="logos/runway.png" alt="Runway Growth Capital" />
+      <img src="logos/triplepoint.svg" alt="TriplePoint Capital" />
+      <img src="logos/multiplier.svg" alt="Multiplier Capital" />
+      <img src="logos/abacus.png" alt="Abacus Finance Group" />
+      <img src="logos/liberty.svg" alt="Liberty Mutual Investments" />
+      <img src="logos/lago.svg" alt="LAGO Innovation Fund" />
+      <img src="logos/plexus.svg" alt="Plexus Capital" />
+      <img src="logos/brigade.svg" alt="Brigade Capital" />
+      <img src="logos/innovatus.png" alt="Innovatus Capital Partners" />
+      <!-- duplicate for seamless loop -->
+      <img src="logos/avante.png" alt="Avante Capital Partners" />
+      <img src="logos/avenue.png" alt="Avenue Capital Group" />
+      <img src="logos/trinity.svg" alt="Trinity Capital" />
+      <img src="logos/hercules.png" alt="Hercules Capital" />
+      <img src="logos/ares.svg" alt="Ares Management" />
+      <img src="logos/blackrock.png" alt="BlackRock" />
+      <img src="logos/carlyle.svg" alt="Carlyle" />
+      <img src="logos/runway.png" alt="Runway Growth Capital" />
+      <img src="logos/triplepoint.svg" alt="TriplePoint Capital" />
+      <img src="logos/multiplier.svg" alt="Multiplier Capital" />
+      <img src="logos/abacus.png" alt="Abacus Finance Group" />
+      <img src="logos/liberty.svg" alt="Liberty Mutual Investments" />
+      <img src="logos/lago.svg" alt="LAGO Innovation Fund" />
+      <img src="logos/plexus.svg" alt="Plexus Capital" />
+      <img src="logos/brigade.svg" alt="Brigade Capital" />
+      <img src="logos/innovatus.png" alt="Innovatus Capital Partners" />
+    </div>
+  </div>
+</section>
+
+<!-- PAIN POINTS -->
+<section class="pain-section">
+  <div class="container">
+    <div class="pain-header reveal">
+      <span class="section-label">The problem</span>
+      <h2>Portfolio monitoring is still stuck in the dark ages</h2>
+    </div>
+    <div class="pain-grid reveal">
+      <div class="pain-item">
+        <div class="pain-number">1</div>
+        <h3>Manual data hell</h3>
+        <p>Analysts spend weeks copying data from PDFs, Excel files, and board decks into spreadsheets.</p>
+      </div>
+      <div class="pain-item">
+        <div class="pain-number">2</div>
+        <h3>Collection chaos</h3>
+        <p>Chasing portfolio companies for financials with no visibility into who's submitted what.</p>
+      </div>
+      <div class="pain-item">
+        <div class="pain-number">3</div>
+        <h3>Template tyranny</h3>
+        <p>Forcing CFOs to fill out rigid forms they hate. Your portfolio companies shouldn't need to change how they work.</p>
+      </div>
+      <div class="pain-item">
+        <div class="pain-number">4</div>
+        <h3>No audit trail</h3>
+        <p>When numbers change, it takes a week to figure out why. Zero traceability back to source data.</p>
+      </div>
+      <div class="pain-item">
+        <div class="pain-number">5</div>
+        <h3>Can't scale</h3>
+        <p>What works for 10 portfolio companies breaks down completely at 50.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="platform">
+  <div class="container">
+    <div class="how-header reveal">
+      <span class="section-label">How it works</span>
+      <h2>Three steps to portfolio clarity</h2>
+      <p>From document upload to IC-ready insight — without changing how your portfolio companies work.</p>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="how-step reveal">
+      <div>
+        <div class="how-step-number">1</div>
+        <h3>Smart collection</h3>
+        <p class="how-step-desc">Companies upload any format they already use — Excel, PDF, PowerPoint, even board decks. No workflow changes for your portfolio companies. Automated reminders handle the follow-ups.</p>
+        <ul class="how-step-bullets">
+          <li>Accept any format: Excel, PDF, PowerPoint, board decks</li>
+          <li>Automated reminders and compliance tracking</li>
+          <li>No workflow changes for portfolio companies</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="how-visual-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+          <span>React component</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="how-step reverse reveal">
+      <div>
+        <div class="how-step-number">2</div>
+        <h3>AI extraction + human QA</h3>
+        <p class="how-step-desc">Our AI extracts metrics from unstructured documents automatically. One-time setup per company, then fully automated. Human review ensures 99%+ accuracy before anything gets published.</p>
+        <ul class="how-step-bullets">
+          <li>Extract metrics from unstructured documents</li>
+          <li>One-time setup per company, then fully automated</li>
+          <li>Human review ensures 99%+ accuracy</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="how-visual-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          <span>React component</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="how-step reveal">
+      <div>
+        <div class="how-step-number">3</div>
+        <h3>Instant insights</h3>
+        <p class="how-step-desc">Real-time dashboards and portfolio rollups. The Excel plugin works with your existing valuation models — refresh with one click. PDF reports are ready for IC meetings.</p>
+        <ul class="how-step-bullets">
+          <li>Real-time dashboards and portfolio rollups</li>
+          <li>Excel plugin for your existing models</li>
+          <li>PDF reports ready for IC meetings</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="how-visual-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+          <span>React component</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KEY FEATURES -->
+<section class="features-section" id="private-credit">
+  <div class="container">
+    <div class="features-header reveal">
+      <span class="section-label">Capabilities</span>
+      <h2>Everything you need, nothing you don't</h2>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+        </div>
+        <h3>AI Document Processing</h3>
+        <p>Extract financials from any document type — PDF, Excel, PowerPoint, even scanned docs. Our AI handles format variations while human QA ensures accuracy.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3>Compliance Dashboard</h3>
+        <p>See exactly which companies have submitted, what's missing, and automated follow-up status. No more playing email tag with portfolio companies.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
+        </div>
+        <h3>Flexible Metrics</h3>
+        <p>Track standard metrics globally, plus custom KPIs per company. Because every business is different — and your monitoring platform should reflect that.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 0v1.5c0 .621-.504 1.125-1.125 1.125"/></svg>
+        </div>
+        <h3>Excel Integration</h3>
+        <p>Live data feeds into your existing valuation models. Refresh with one click, maintain your workflows. No migration, no retraining.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3>Audit Trail</h3>
+        <p>Click through any number to see the source document and extraction point. Full transparency for audits, variance analysis, and IC prep.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        </div>
+        <h3>Restatement Detection</h3>
+        <p>Automatic flagging when companies change historical numbers. Customizable variance alerts so you catch discrepancies before they become problems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section class="ai-section" id="lu">
+  <div class="container">
+    <div class="ai-inner reveal">
+      <div class="ai-content">
+        <span class="section-label">Meet Lu</span>
+        <h2>Ask your portfolio anything</h2>
+        <p>Lu is your AI-powered analyst — a natural language interface to your entire portfolio. Anyone at your firm can query data, surface trends, and drill into specifics without waiting on the analytics team.</p>
+        <ul class="how-step-bullets">
+          <li>Query portfolio data in plain English</li>
+          <li>Real-time trends and drill-downs across borrowers</li>
+          <li>Restatement and variance detection, automatically</li>
+          <li>Your data stays completely private</li>
+        </ul>
+        <div style="margin-top:32px">
+          <a href="https://www.lumonic.com/get-started" class="btn btn-light">
+            See Lu in action
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="ai-chat">
+        <div class="ai-chat-header">Lu — Portfolio Intelligence</div>
+        <div class="chat-messages">
+          <div class="chat-bubble user">Which borrowers are within 0.5x of their leverage covenant?</div>
+          <div class="chat-bubble assistant">Three companies are approaching their threshold: <strong>Helix Bio</strong> (3.8x vs. 4.0x limit), <strong>Onyx Group</strong> (3.7x), and <strong>Summit Digital</strong> (3.6x). All three have tightened over the last two quarters.</div>
+          <div class="chat-bubble user">Pull the trend and flag any restatements</div>
+          <div class="chat-bubble assistant">Done. Helix Bio restated Q2 EBITDA from <strong>$4.8M to $4.2M</strong> on July 15 — flagged the original vs. restated values. No restatements for the other two. Exporting the trend now.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial-section reveal">
+  <div class="container">
+    <p class="testimonial-quote">"Finally, a tool that doesn't make our portfolio companies hate quarterly reporting."</p>
+    <p class="testimonial-attribution"><strong>Portfolio Manager</strong> — $2B Private Equity Fund</p>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="use-cases" id="private-equity">
+  <div class="container">
+    <div class="use-cases-header reveal">
+      <span class="section-label">Use cases</span>
+      <h2>Built for how you invest</h2>
+    </div>
+    <div class="use-cases-grid reveal">
+      <div class="use-case-item">
+        <h3>Private Equity</h3>
+        <p>Automate quarterly reviews, streamline valuations, reduce analyst workload by 80%. Extract KPIs from any format your portcos send.</p>
+      </div>
+      <div class="use-case-item">
+        <h3>Venture Capital</h3>
+        <p>Scale monitoring as your portfolio grows. Extract KPIs from board decks automatically — no templates, no friction.</p>
+      </div>
+      <div class="use-case-item">
+        <h3>Private Credit</h3>
+        <p>Covenant tracking, early warning systems, and standardized borrower reporting — purpose-built for lenders.</p>
+      </div>
+      <div class="use-case-item">
+        <h3>Fund of Funds</h3>
+        <p>Consolidate data across GP reports, track look-through metrics, and generate unified LP reporting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section reveal">
+  <div class="container">
+    <h2>Stop chasing down <em>reporting packages</em></h2>
+    <p>See how leading investment firms use Lumonic to go from document chaos to portfolio clarity.</p>
+    <a href="https://www.lumonic.com/get-started" class="btn btn-dark">
+      See it in action
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="logos/pb-lumonic.svg" alt="PitchBook | Lumonic" class="footer-brand-logo" />
+        <p>Portfolio monitoring for private credit and equity — from source data to actionable reporting.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Asset Class</h4>
+        <a href="https://www.lumonic.com/private-credit">Private Credit</a>
+        <a href="https://www.lumonic.com/private-equity">Private Equity</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="https://www.lumonic.com/content">Content</a>
+        <a href="mailto:support@lumonic.com">Contact Us</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="https://www.lumonic.com/about">About</a>
+        <a href="https://www.lumonic.com/security">Security</a>
+        <a href="https://careers.pitchbook.com/global/en/search-results?keywords=lumonic">Careers</a>
+        <a href="https://www.linkedin.com/company/lumonic" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Lumonic Inc., a PitchBook company.</span>
+      <div class="footer-legal">
+        <a href="https://www.lumonic.com/privacy-policy">Privacy Policy</a>
+        <a href="https://www.lumonic.com/terms-of-use">Terms of Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+</script>
+</body>
+</html>
