@@ -17,10 +17,10 @@ Current site is built in Framer. We're rebuilding with a completely new design l
 - Frosted glass / glassmorphism nav on scroll
 
 ### Typography
-- **Headlines:** Serif — "Office Times Round" (custom font, loaded via local @font-face from project font files — NOT available on Google Fonts)
+- **Headlines:** Sans-serif — DM Sans, bold weight (700), tight letter-spacing (-2px to -2.5px)
 - **Body:** Sans-serif — DM Sans (available on Google Fonts)
-- Pair serif headlines with DM Sans body. This contrast is core to the brand identity.
-- If Office Times Round font files are not yet in the project, use a serif placeholder (e.g. Instrument Serif from Google Fonts) and leave a TODO comment marking where to swap
+- **Accent/secondary:** "Office Times Round" (custom serif font, loaded via local @font-face from project font files) — used for feature card titles, stat numbers, cross-asset headings, and editorial moments. NOT for the main hero headline.
+- Office Times Round adds warmth and distinction without dominating — it's a supporting typeface, not the lead.
 
 ### Animation & Motion
 - Scroll-triggered fade-up reveals with stagger delays (IntersectionObserver)
@@ -47,7 +47,8 @@ Current site is built in Framer. We're rebuilding with a completely new design l
 - Don't invent features or stats that don't exist
 
 ### Customer Logo Bar
-- Full width layout — logos should span the entire content width
+- **Tile grid layout** (4-column grid with 1px borders, like Cursor/Rogo) — NOT a scrolling carousel
+- Logos centered in each tile, grayscale with hover reveal
 - Only use logos that visually fit the light-mode aesthetic — clean, single-color logos that work on a light background
 - **DO NOT** use inverted-color logos or logos that look jarring against the warm off-white background
 - If a logo doesn't look right in this context, skip it rather than force it in
@@ -65,7 +66,7 @@ Current site is built in Framer. We're rebuilding with a completely new design l
 - Follow `/mnt/skills/public/frontend-design/SKILL.md` for all frontend work
 - Production-grade — this should look like a real shipped website, not a prototype
 - Every detail matters: border-radius consistency, shadow uniformity, spacing rhythm, animation easing curves
-- Pill-shaped CTAs, consistent border treatments
+- Square/minimal-radius CTAs (4px border-radius, NOT pill-shaped), consistent border treatments
 - Mock UI illustrations in feature cards should feel realistic and detailed
 - No generic AI aesthetics — no Inter font, no purple gradients, no cookie-cutter layouts
 
